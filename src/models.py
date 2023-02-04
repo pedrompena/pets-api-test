@@ -8,7 +8,7 @@ class Clients(db.Model):
     roles = db.Column(db.String)
     name = db.Column(db.String)
     surname = db.Column(db.String)
-    email = db.Column(db.String)
+    email = db.Column(db.String,  unique=True)
     password = db.Column(db.String)
     avatar = db.Column(db.String)
     description = db.Column(db.String)
@@ -43,7 +43,7 @@ class Services(db.Model):
     title = db.Column(db.String)
     price = db.Column(db.Integer)
     description = db.Column(db.String)
-    client_id = db.Column(db.Integer, db.ForeignKey(
+    carer_id = db.Column(db.Integer, db.ForeignKey(
         'clients.id'), nullable=False)
 
     def __repr__(self):
@@ -82,6 +82,8 @@ class Images(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey(
         'clients.id'), nullable=False)
     url = db.Column(db.String)
+    alt = db.Column(db.String)
+    caption = db.Column(db.String)
 
     def __repr__(self):
         return '<Images %r>' % self.id
