@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
 
 
@@ -37,6 +38,13 @@ class Pets(db.Model):
     def __repr__(self):
         return '<Pets %r>' % self.id
 
+    def serialize(self):
+        return {'id': self.id,
+                'name': self.name,
+                'image': self.image,
+                'description': self.description,
+                'owner_id': self.owner_id}
+
 
 class Services(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,6 +56,13 @@ class Services(db.Model):
 
     def __repr__(self):
         return '<Services %r>' % self.id
+
+    def serialize(self):
+        return {'id': self.id,
+                'title': self.title,
+                'price': self.price,
+                'description': self.description,
+                'carer_id': self.carer_id}
 
 
 class Contracts(db.Model):
@@ -63,6 +78,15 @@ class Contracts(db.Model):
     def __repr__(self):
         return '<Contracts %r>' % self.id
 
+    def serialize(self):
+        return {'id': self.id,
+                'pet_id': self.pet_id,
+                'service_id': self.service_id,
+                'date': self.date,
+                'price': self.price,
+                'assessment': self.assessment,
+                'comments': self.comments}
+
 
 class Messages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -76,6 +100,13 @@ class Messages(db.Model):
     def __repr__(self):
         return '<Messages %r>' % self.id
 
+    def serialize(self):
+        return {'id': self.id,
+                'transmitter_id': self.transmitter_id,
+                'receiver_id': self.receiver_id,
+                'date': self.date,
+                'content': self.content}
+
 
 class Images(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -87,3 +118,10 @@ class Images(db.Model):
 
     def __repr__(self):
         return '<Images %r>' % self.id
+
+    def serialize(self):
+        return {'id': self.id,
+                'client_id': self.client_id,
+                'url': self.url,
+                'alt': self.alt,
+                'caption': self.caption}

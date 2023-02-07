@@ -13,7 +13,8 @@ app.url_map.strict_slashes = False
 
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
+        "postgres://", "postgresql://")
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -32,6 +33,9 @@ def handle_invalid_usage(error):
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
+
+
+#  CLIENTS
 
 
 @app.route('/clients', methods=['GET'])
@@ -56,14 +60,14 @@ def get_client(client_id):
 @app.route('/clients', methods=['POST'])
 def register_client():
     request_body = request.get_json()
-    client = Clients(roles = request_body['roles'],
-                     name = request_body['name'],
-                     surname = request_body['surname'],
-                     email = request_body['email'],
-                     password = request_body['password'],
-                     avatar = request_body['avatar'],
-                     description = request_body['description'],
-                     city = request_body['city'])
+    client = Clients(roles=request_body['roles'],
+                     name=request_body['name'],
+                     surname=request_body['surname'],
+                     email=request_body['email'],
+                     password=request_body['password'],
+                     avatar=request_body['avatar'],
+                     description=request_body['description'],
+                     city=request_body['city'])
     db.session.add(client)
     db.session.commit()
     return jsonify(request_body), 200
@@ -101,6 +105,137 @@ def update_client(client_id):
                      'avatar': client.avatar,
                      'description': client.description,
                      'city': client.city}
+
+    return jsonify(response_body), 200
+
+
+# PETS
+
+
+@app.route('/pets', methods=['GET'])
+def get_pets():
+    pets = Pets.query.all()
+    results = [pet.serialize() for pet in pets]
+    response_body = {'message': 'OK',
+                     'total_records': len(results),
+                     'results': results}
+    return jsonify(response_body), 200
+
+
+@app.route('/pets/<int:pet_id>', methods=['GET'])
+def get_pet(pet_id):
+    pet = Pets.query.get(pet_id)
+    if pet is None:
+        return 'Not found', 404
+    result = pet.serialize()
+    response_body = {'message': 'OK',
+                     'result': result}
+    return jsonify(response_body), 200
+
+
+@app.route('/pets', methods=['POST'])
+def register_pet():
+    request_body = request.get_json()
+    pet = Pets(name=request_body['name'],
+               image=request_body['image'],
+               description=request_body['description'],
+               owner_id=request_body['owner_id'])
+    db.session.add(pet)
+    db.session.commit()
+    return jsonify(request_body), 200
+
+
+@app.route('/pets/<int:pet_id>', methods=['DELETE'])
+def delete_pet(pet_id):
+    pet = Pets.query.get(pet_id)
+    db.session.delete(pet)
+    db.session.commit()
+    return jsonify('OK'), 200
+
+
+@app.route('/pets/<int:pet_id>', methods=['PUT'])
+def update_pet(pet_id):
+    pet = Pets.query.get(pet_id)
+    if pet is None:
+        return 'Not found', 404
+
+    pet.name = request.json.get('name', pet.name)
+    pet.image = request.json.get('image', pet.image)
+    pet.description = request.json.get('description', pet.description)
+
+    db.session.commit()
+
+    response_body = {'id': pet.id,
+                     'name': pet.name,
+                     'image': pet.image,
+                     'description': pet.description,
+                     'owner_id': pet.owner_id}
+
+    return jsonify(response_body), 200
+
+
+# SERVICES
+
+
+@app.route('/services', methods=['GET'])
+def get_services():
+    services = Services.query.all()
+    results = [service.serialize() for service in services]
+    response_body = {'message': 'OK',
+                     'total_records': len(results),
+                     'results': results}
+    return jsonify(response_body), 200
+
+
+@app.route('/services/<int:service_id>', methods=['GET'])
+def get_service(service_id):
+    service = Services.query.get(service_id)
+    if service is None:
+        return 'Not found', 404
+    result = service.serialize()
+    response_body = {'message': 'OK',
+                     'result': result}
+    return jsonify(response_body), 200
+
+
+@app.route('/services', methods=['POST'])
+def register_service():
+    request_body = request.get_json()
+    service = Services(title=request_body['title'],
+                       price=request_body['price'],
+                       description=request_body['description'],
+                       carer_id=request_body['carer_id'])
+    db.session.add(service)
+    db.session.commit()
+    return jsonify(request_body), 200
+
+
+@app.route('/services/<int:service_id>', methods=['DELETE'])
+def delete_service(service_id):
+    service = Services.query.get(service_id)
+    db.session.delete(service)
+    db.session.commit()
+    return jsonify('OK'), 200
+
+
+@app.route('/services/<int:service_id>', methods=['PUT'])
+def update_service(service_id):
+    service = Services.query.get(service_id)
+    if service is None:
+        return 'Not found', 404
+
+    service.title = request.json.get('title', service.title)
+    service.price = request.json.get('price', service.price)
+    service.description = request.json.get('description', service.description)
+    service.carer_id = request.json.get('carer_id', service.carer_id)
+
+    db.session.commit()
+
+    response_body = {'id': service.id,
+                     'title': service.title,
+                     'price': service.price,
+                     'description': service.description,
+                     'carer_id': service.carer_id}
 
     return jsonify(response_body), 200
 
